@@ -1,3 +1,5 @@
+package laba1;
+
 import java.sql.*;
 import java.util.Objects;
 import java.util.Scanner;
