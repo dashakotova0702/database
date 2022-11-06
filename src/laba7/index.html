@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8">
+    <title>Node + http + ajax web</title>
+    <script type="text/javascript">
+      //оставлю это в надежде что сделаю фетч
+      /*async function readServerString(url, callback) {
+        fetch(url, {
+          method: 'POST',
+          headers: {
+            "Content-type": "application/x-www-form-urlencoded; charset=UTF-8"
+          },
+          body: JSON.stringify()
+        }).then(
+            function(res) {
+              if (res.ok) {
+                return Promise.resolve(res);
+              }
+              else {
+                return Promise.reject(new Error(res.statusText));
+              }
+            }
+          ).then(
+            function(res) {
+              return res.json();
+            }
+          )
+          .then(
+            function(data) {
+              console.log("data");
+            }
+          )
+          .catch(function(err) {
+            console.log("Fetch error: ", err);
+          });
+      }*/
+      function readServerString(url, callback) {
+         var req = new XMLHttpRequest();
+         req.onreadystatechange = function() {
+           if (req.readyState === 4) {
+              if (req.status === 200) {
+                callback(undefined, req.responseText);
+              } else {
+                callback(new Error(req.status));
+              }
+           }
+         };
+         req.open("POST", url, true);
+         req.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+         req.send();
+      }
+      function search() {
+        var url = "/search-" + document.getElementById("search_input").value;
+        readServerString(url, function (err, res) {
+          if (err) {
+            document.getElementById("search_res").innerHTML = "<span>" + err + "</span>";
+          }
+          else {
+            var obj = JSON.parse(res);
+            var resp = '';
+            for (var i = 0; i < obj.rows.length; i++) {
+              resp += obj.rows[i].id + " " + obj.rows[i].name + " " + obj.rows[i].count + " " + obj.rows[i].units + " " + obj.rows[i].type + "<br>";
+            }
+            document.getElementById("search_res").innerHTML = resp;
+          }
+        });
+      }
+      document.addEventListener("keypress", function onEvent(event) {
+        if (event.key === "Enter") {
+            search();
+        }
+      });
+    </script>
+  </head>
+  <body>
+    <h1>Список продуктов</h1><br>
+    <h3>Поиск по параметру:</h3><br>
+    <input type="text" id="search_input" size="40"><br>
+    <button type="button" id="button" onclick="javascript:search()">Поиск</button>
+    <p>Результат:</p><br>
+    <span id="search_res"> </span>
+  </body>
+</html>
