@@ -2,6 +2,7 @@
   "dependencies": {
     "kill-port": "^2.0.1",
     "mongodb": "^4.11.0",
+    "neo4j-driver": "^5.2.0",
     "sqlite3": "^5.1.2"
   }
 }
