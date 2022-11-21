@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8">
+    <title>Node + http + ajax web</title>
+    <script type="text/javascript">
+      function readServerString(url, callback) {
+         var req = new XMLHttpRequest();
+         req.onreadystatechange = function() {
+           if (req.readyState === 4) {
+              if (req.status === 200) {
+                callback(undefined, req.responseText);
+              } else {
+                callback(new Error(req.status));
+              }
+           }
+         };
+         req.open("POST", url, true);
+         req.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+         req.send();
+      }
+      function search() {
+        var url = "/search-" + document.getElementById("search_input").value;
+        readServerString(url, function (err, res) {
+          if (err) {
+            document.getElementById("search_res").innerHTML = "<span>" + err + "</span>";
+          }
+          else {
+            console.log(res)
+            var obj = JSON.parse(res)
+            console.log(obj);
+            resp = ''
+            for (var i = 0; i < obj.records.length; i++) {
+              resp += obj.records[i]._fields[0].properties.name_type + " "  + obj.records[i]._fields[1].properties.count_ + " " + obj.records[i]._fields[1].properties.units + " " + obj.records[i]._fields[2].properties.name + "<br>";
+            }
+            document.getElementById("search_res").innerHTML = resp;
+          }
+        });
+      }
+      document.addEventListener("keypress", function onEvent(event) {
+        if (event.key === "Enter") {
+            search();
+        }
+      });
+    </script>
+  </head>
+  <body>
+    <h1>Список продуктов</h1><br>
+    <h3>Поиск по параметру:</h3><br>
+    <input type="text" id="search_input" size="40"><br>
+    <button type="button" id="button" onclick="javascript:search()">Поиск</button>
+    <p>Результат:</p><br>
+    <span id="search_res"> </span>
+  </body>
+</html>
