@@ -13,7 +13,7 @@ http.createServer(function (req, res){
   console.log("request: " + str[0]);
   switch(str[0]) {
     case "/":
-      fs.readFile("./src/laba9/index.html", function(err, content){
+      fs.readFile("./src/katya_pm2/laba9/index.html", function(err, content){
         if (err) {
           res.writeHead(500, {"Content-Type": "text/html; charset=utf-8"});
           res.end(err.message, "utf-8");
@@ -25,13 +25,12 @@ http.createServer(function (req, res){
         }
       });
       break;
-    case "/search":
+    case "/find":
       res.writeHead(200, {"Content-Type": "text/html; charset=utf-8"});
-      session.run("MATCH (node_type:type {name_type: $search_field})-[relation:buy]->(node_product) RETURN node_type, relation, node_product;", {search_field: str[1]})
+      session.run("MATCH (node_person)-[relation:result]->" +
+      "(node_country:country {name_country: $search_field}) " +
+      "RETURN node_person, relation, node_country;", {search_field: str[1]})
       .then(result => {
-        for (var i = 0; i < result.records.length; i++) {
-          console.log(result.records[i].get(0).properties.name_type + " "  + result.records[i]._fields[1].properties.count_ + " " + result.records[i]._fields[1].properties.units + " " + result.records[i]._fields[2].properties.name);
-        }
         res.end(JSON.stringify(result));
       });
       break;

@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8">
+    <title>Node + http + ajax web</title>
+    <script type="text/javascript">
+      function readServerString(url, callback) {
+         var req = new XMLHttpRequest();
+         req.onreadystatechange = function() {
+           if (req.readyState === 4) {
+              if (req.status === 200) {
+                callback(undefined, req.responseText);
+              } else {
+                callback(new Error(req.status));
+              }
+           }
+         };
+         req.open("POST", url, true);
+         req.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+         req.send();
+      }
+      function find() {
+        var url = "/find-" + document.getElementById("find_input").value;
+        readServerString(url, function (err, res) {
+          if (err) {
+            document.getElementById("find_res").innerHTML = "<span>" + err + "</span>";
+          }
+          else {
+            var obj = JSON.parse(res);
+            var res_str = '';
+            for (var i = 0; i < obj.rows.length; i++) {
+              res_str += obj.rows[i].id + " " + obj.rows[i].name + " " +
+              obj.rows[i].surname + " " + obj.rows[i].country + " " +
+              obj.rows[i].points + "<br>";
+            }
+            document.getElementById("find_res").innerHTML = res_str;
+          }
+        });
+      }
+    </script>
+  </head>
+  <body>
+    <h3>Результаты олимпиады 2022 по фигурному катанию (женщины)</h3><br>
+    <input type="text" id="find_input" size="40"><br>
+    <button type="button" id="button" onclick="javascript:find()">Поиск</button>
+    <br> <br><span id="find_res"> </span>
+  </body>
+</html>

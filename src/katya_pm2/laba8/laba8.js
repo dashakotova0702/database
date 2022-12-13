@@ -1,11 +1,8 @@
 var http = require("http");
 var fs = require("fs")
-var neo4j = require("neo4j-driver");
-var uri =  'bolt://localhost:7687';
-var user = 'neo4j';
-var password = 'neo4jj';
-var driver = neo4j.driver(uri, neo4j.auth.basic(user, password));
-var session = driver.session();
+var mongodb = require("mongodb");
+var MongoClient = mongodb.MongoClient;
+var url =  "mongodb://localhost:27017";
 
 http.createServer(function (req, res){
   var str = req.url.split("-");
@@ -13,7 +10,7 @@ http.createServer(function (req, res){
   console.log("request: " + str[0]);
   switch(str[0]) {
     case "/":
-      fs.readFile("./src/laba9/index.html", function(err, content){
+      fs.readFile("./src/katya_pm2/laba8/index.html", function(err, content){
         if (err) {
           res.writeHead(500, {"Content-Type": "text/html; charset=utf-8"});
           res.end(err.message, "utf-8");
@@ -25,14 +22,25 @@ http.createServer(function (req, res){
         }
       });
       break;
-    case "/search":
+    case "/find":
       res.writeHead(200, {"Content-Type": "text/html; charset=utf-8"});
-      session.run("MATCH (node_type:type {name_type: $search_field})-[relation:buy]->(node_product) RETURN node_type, relation, node_product;", {search_field: str[1]})
-      .then(result => {
-        for (var i = 0; i < result.records.length; i++) {
-          console.log(result.records[i].get(0).properties.name_type + " "  + result.records[i]._fields[1].properties.count_ + " " + result.records[i]._fields[1].properties.units + " " + result.records[i]._fields[2].properties.name);
+      MongoClient.connect(url, function(err, client){
+        if (err) {
+          console.log(err);
         }
-        res.end(JSON.stringify(result));
+        else {
+          var db = client.db("olympiad-db");
+          var collection = db.collection("olympiad");
+          collection.find({$text: {$search: str[1]}}).toArray(function(err, result){
+            if (err) {
+              console.log(err);
+            }
+            else {
+              console.log(result);
+              res.end(JSON.stringify(result));
+            }
+          });
+        }
       });
       break;
     default:

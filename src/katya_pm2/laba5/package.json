@@ -1,0 +1,8 @@
+{
+  "name": "http",
+  "version": "1.0.0",
+  "main": "laba5.js",
+  "scripts": {
+    "start": "node laba5.js"
+  }
+}
