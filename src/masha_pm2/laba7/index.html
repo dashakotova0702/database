@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Books</title>
+    <meta charset="utf-8" />
+    <script type="text/javascript">
+        var name_filter = "";
+        var language_filter = "";
+        var genre_filter = "";
+        var sales_filter_from = 100;
+        var sales_filter_to = 1000;
+
+        function readServer(url, data, callback) {
+            var req = new XMLHttpRequest();
+            req.onreadystatechange = function () {
+                if (req.readyState === 4) {//"loaded"
+                    if (req.status === 200) {//"OK"
+                        callback(undefined, req.responseText);
+                    } else {
+                        callback(new Error(req.status));
+                    }
+                }
+            };
+
+            req.open("POST", url, true);
+            req.setRequestHeader('Content-Type', 'application/json');
+            req.send(data);
+        }
+
+        function update() {
+            var filters = {};
+            filters.name = name_filter;
+            filters.language = language_filter;
+            filters.genre = genre_filter;
+            filters.sales_from = sales_filter_from;
+            filters.sales_to = sales_filter_to;
+            readServer("/get_table", JSON.stringify(filters), function (err, response) {
+                if (err) document.getElementById("res").innerHTML = err;
+                else {
+                    var temp = "";
+
+                    temp = "<table class='table1'>\n";
+                    temp+="<tr><th>Book series" +
+                        "<th>Original language" +
+                        "<th>Approximate sales (mln)" +
+                        "<th>Genre</thead>";
+                    var rows = JSON.parse(response).table;
+                    for (var i = 0; i < rows.length; i++) {
+                        temp += "<tr><td>" +
+                            rows[i].name +
+                            "</td><td align=\"center\">" +
+                            rows[i].language +
+                            "</td><td align=\"center\">" +
+                            rows[i].sales +
+                            "$</td><td align=\"center\">" +
+                            rows[i].genre +"</td></tr>\n";
+                    } temp += "</table>";
+                    document.getElementById("res").innerHTML = temp;
+                }
+            });
+        }
+
+        window.onload = function () {
+            var name_input = document.getElementById("name");
+            name_input.oninput = function () {
+                name_filter = name_input.value;
+                update();
+            };
+            var language_input = document.getElementById("language");
+            language_input.oninput = function () {
+                language_filter = language_input.value;
+                update();
+            };
+            var genre_input = document.getElementById("genre");
+            genre_input.oninput = function () {
+                genre_filter = genre_input.value;
+                update();
+            };
+            var fr_input = document.getElementById("from");
+            fr_input.oninput = function () {
+                sales_filter_from = fr_input.value;
+                update();
+            };
+            var to_input = document.getElementById("to");
+            to_input.oninput = function () {
+                sales_filter_to = to_input.value;
+                update();
+            };
+            update();
+        }
+    </script>
+
+</head>
+
+<body>
+<h2>List of best-selling book series (more than 100 million copies)</h2>
+
+<p> cassandra </p>
+
+<p>
+    Series Search<input id="name" type="text">
+    Language Search<input id="language" type="text">
+    Genre Search<input id="genre" type="text">
+    Sales from: <input id="from" type="number" value=100>
+    to: <input id="to" type="number" value=1000>$.
+</p>
+<p>
+    <span id="res" style="font-style: italic"></span>
+</p>
+
+<style type="text/css">
+    .table1 {
+        width: 100%;
+        border: none;
+        margin-bottom: 20px;
+    }
+    .table1 thead th {
+        font-weight: bold;
+        text-align: left;
+        border: none;
+        padding: 10px 15px;
+        background: #d8d8d8;
+        font-size: 14px;
+    }
+    .table1 thead tr th:first-child {
+        border-radius: 8px 0 0 8px;
+    }
+    .table1 thead tr th:last-child {
+        border-radius: 0 8px 8px 0;
+    }
+    .table1 tbody td {
+        text-align: left;
+        border: none;
+        padding: 10px 15px;
+        font-size: 14px;
+        vertical-align: top;
+    }
+    .table1 tbody tr:nth-child(even){
+        background: #f3f3f3;
+    }
+    .table1 tbody tr td:first-child {
+        border-radius: 8px 0 0 8px;
+    }
+    .table1 tbody tr td:last-child {
+        border-radius: 0 8px 8px 0;
+    }
+</style>
+
+</body>
+</html>
